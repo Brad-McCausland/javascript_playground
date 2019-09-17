@@ -17,17 +17,36 @@ let currentImageIndex = 0;
 
 // Edit header element using js
 let heading = document.querySelector('h1');
-heading.textContent = "Hello world";
+heading.textContent = "Glory to you!";
 
-// Select main image element
-let myImage = document.querySelector('img');
+// Create canvas element
+var canvas = document.createElement('canvas');
+canvas.width = 400;
+canvas.height = 400;
+document.body.appendChild(canvas);
 
-myImage.onclick = function()
+// create image
+var img = new Image(400, 400);
+img.id = "main_image";
+img.src = "images/gowron.jpg";
+canvas.onclick = function()
+{
+    console.log("Click");
+    drawNextImage();
+}
+
+// Draw image to canvas
+var context = canvas.getContext('2d');
+context.drawImage(img, 0, 0, 400, 400);
+
+
+function drawNextImage()
 {
     currentImageIndex = (currentImageIndex + 1) % imageFileNames.length
-    var newImgName = `images/${imageFileNames[currentImageIndex]}`
+    let newImageName = `images/${imageFileNames[currentImageIndex]}`
 
-    let mySrc = myImage.getAttribute('src');
-
-    myImage.setAttribute ('src', newImgName);
+    let newImage = new Image(400, 400);
+    newImage.src = newImageName
+    console.log(newImageName);
+    context.drawImage(newImage, 0, 0, 400, 400);
 }
