@@ -40,8 +40,10 @@ canvas.onclick = function()
     drawNextImage();
 }
 
-// create image
-drawNextImage();
+window.onload = function()
+{
+    drawNextImage();
+}
 
 function drawNextImage()
 {
