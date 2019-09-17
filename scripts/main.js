@@ -1,17 +1,27 @@
 const imageFileNames =
 [
-    "awe.jpg",
-    "excited.png",
-    "fear.jpg",
-    "impressed.jpg",
-    "intense.jpg",
-    "menacing.jpg",
-    "mischief.jpg",
-    "pleased.jpg",
-    "risen.png",
-    "surprised.jpg",
-    "talking.jpg"
+    "images/awe.jpg",
+    "images/excited.png",
+    "images/fear.jpg",
+    "images/impressed.jpg",
+    "images/intense.jpg",
+    "images/menacing.jpg",
+    "images/mischief.jpg",
+    "images/pleased.jpg",
+    "images/risen.png",
+    "images/surprised.jpg",
+    "images/talking.jpg"
 ]
+
+// Preload image objects into array
+var imageFiles = [];
+
+for (i = 0; i < imageFileNames.length; i++)
+{
+    let newImage = new Image(400, 400);
+    newImage.src = imageFileNames[i];
+    imageFiles.unshift(newImage);
+}
 
 let currentImageIndex = 0;
 
@@ -25,28 +35,18 @@ canvas.width = 400;
 canvas.height = 400;
 document.body.appendChild(canvas);
 
-// create image
-var img = new Image(400, 400);
-img.id = "main_image";
-img.src = "images/gowron.jpg";
 canvas.onclick = function()
 {
-    console.log("Click");
     drawNextImage();
 }
 
-// Draw image to canvas
-var context = canvas.getContext('2d');
-context.drawImage(img, 0, 0, 400, 400);
-
+// create image
+drawNextImage();
 
 function drawNextImage()
 {
+    var context = canvas.getContext('2d');
     currentImageIndex = (currentImageIndex + 1) % imageFileNames.length
-    let newImageName = `images/${imageFileNames[currentImageIndex]}`
-
-    let newImage = new Image(400, 400);
-    newImage.src = newImageName
-    console.log(newImageName);
+    let newImage = imageFiles[currentImageIndex];
     context.drawImage(newImage, 0, 0, 400, 400);
 }
