@@ -1,14 +1,16 @@
 const portNum = 8000;
 
-const {createServer} = require("http");
 const fs = require('fs');
+const express = require('express');
+const path = require('path');
 
-const index = fs.readFileSync("index.html");
+const htmlFile = path.join(__dirname + '/index.html');
 
-let server = createServer((request, response) => {
-  response.writeHead(200, {"Content-Type": "text/html"});
-  response.write(index);
-  response.end();
+var app = express();
+app.use(express.static(__dirname));
+app.get('/', function(req, res) {
+    res.sendFile(htmlFile);
 });
-server.listen(portNum);
+
+app.listen(portNum);
 console.log("Listening! (port " + portNum + ")");
