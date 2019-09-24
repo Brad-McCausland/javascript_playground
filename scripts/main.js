@@ -1,17 +1,21 @@
 const imageFileNames =
 [
-    "images/awe.jpg",
-    "images/excited.png",
-    "images/fear.jpg",
-    "images/impressed.jpg",
-    "images/intense.jpg",
-    "images/menacing.jpg",
-    "images/mischief.jpg",
-    "images/pleased.jpg",
-    "images/risen.png",
-    "images/surprised.jpg",
-    "images/talking.jpg"
+    "image_service/images/awe.jpg",
+    "image_service/images/excited.png",
+    "image_service/images/fear.jpg",
+    "image_service/images/impressed.jpg",
+    "image_service/images/intense.jpg",
+    "image_service/images/menacing.jpg",
+    "image_service/images/mischief.jpg",
+    "image_service/images/pleased.jpg",
+    "image_service/images/risen.png",
+    "image_service/images/surprised.jpg",
+    "image_service/images/talking.jpg"
 ]
+
+//var data = httpGet("10.0.0.29:8001");
+console.log("request");
+//console.log(data);
 
 // Preload image objects into array
 var imageFiles = [];
@@ -51,4 +55,12 @@ function drawNextImage()
     currentImageIndex = (currentImageIndex + 1) % imageFileNames.length
     let newImage = imageFiles[currentImageIndex];
     context.drawImage(newImage, 0, 0, 400, 400);
+}
+
+function httpGet(theUrl)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
 }
