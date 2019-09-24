@@ -1,21 +1,26 @@
-var data = httpGet("http://localhost:9001/");
-var imageArray = JSON.parse(data);
+// Raw json data from image service
+const imageData = httpGet("http://localhost:8001/");
 
-// Preload image objects into array
+// Array of images in Base64 
+const imageArray = JSON.parse(imageData);
+
+// Array to be populated with finished Image objects
 var imageFiles = [];
 
-imageArray.forEach(function(element) {
-    var src = "data:image/jpeg;base64,";;
-    src += element;
+// Convert each element in imageArray from Base64 into an image object. Push finished objects onto imageFiles[].
+imageArray.forEach(function(imageData) {
+    let src = "data:image/jpeg;base64,";;
+    src += imageData;
     let image = new Image();
     image.src = src;
     imageFiles.unshift(image);
 });
 
-let currentImageIndex = 0;
+// Tracks index of currently-displayed image
+var currentImageIndex = 0;
 
 // Edit header element using js
-let heading = document.querySelector('h1');
+var heading = document.querySelector('h1');
 heading.textContent = "Glory to you!";
 
 // Create canvas element
