@@ -1,31 +1,16 @@
-const imageFileNames =
-[
-    "image_service/images/awe.jpg",
-    "image_service/images/excited.png",
-    "image_service/images/fear.jpg",
-    "image_service/images/impressed.jpg",
-    "image_service/images/intense.jpg",
-    "image_service/images/menacing.jpg",
-    "image_service/images/mischief.jpg",
-    "image_service/images/pleased.jpg",
-    "image_service/images/risen.png",
-    "image_service/images/surprised.jpg",
-    "image_service/images/talking.jpg"
-]
-
-//var data = httpGet("10.0.0.29:8001");
-console.log("request");
-//console.log(data);
+var data = httpGet("http://localhost:9001/");
+var imageArray = JSON.parse(data);
 
 // Preload image objects into array
 var imageFiles = [];
 
-for (i = 0; i < imageFileNames.length; i++)
-{
-    let newImage = new Image(400, 400);
-    newImage.src = imageFileNames[i];
-    imageFiles.unshift(newImage);
-}
+imageArray.forEach(function(element) {
+    var src = "data:image/jpeg;base64,";;
+    src += element;
+    let image = new Image();
+    image.src = src;
+    imageFiles.unshift(image);
+});
 
 let currentImageIndex = 0;
 
@@ -52,7 +37,7 @@ window.onload = function()
 function drawNextImage()
 {
     var context = canvas.getContext('2d');
-    currentImageIndex = (currentImageIndex + 1) % imageFileNames.length
+    currentImageIndex = (currentImageIndex + 1) % imageFiles.length
     let newImage = imageFiles[currentImageIndex];
     context.drawImage(newImage, 0, 0, 400, 400);
 }
@@ -60,6 +45,7 @@ function drawNextImage()
 function httpGet(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
+    //TODO: Remove syncronous call on the main thread
     xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
     xmlHttp.send( null );
     return xmlHttp.responseText;
