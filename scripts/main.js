@@ -2,6 +2,14 @@
 // Array to be populated with finished Image objects
 var slideshowImages = [];
 
+$(document).ready(function() {
+    $("button").on("click", function()
+    {
+        console.log("click");
+        alert("clicked!");
+    });
+});
+
 // Try loading images from image service
 try
 {
