@@ -8,7 +8,6 @@
                         body
                         {
                                 text-align: center;
-                                background: url("image_service/other_images/background.jpg");
                                 background-repeat: no-repeat;
                                 background-size: cover;
                                 background-position: center;
@@ -16,28 +15,51 @@
                                 font-family: helvetica;
                                 padding-bottom: 50%;
                         }
-                        /*
-                        p
+                        header
                         {
-                                font-size: 22px;
+                                background: url("image_service/other_images/pano.jpg");
+                                background-size: cover;
                         }
-                        input
+                        img
+                        {
+                                margin: 120px 0px 0px 0px;
+                                border: 7px solid white;
+                                border-radius: 20px;
+                        }
+                        h1
                         {
                                 border: 0;
                                 padding: 10px;
-                                font-size: 18px;
+                                font-size: 56px;
                         }
-                        input[type="submit"]
+                        ul
                         {
-                                background: red;
+                                padding: 10px;
+                                background: rgba(0,0,0,0.5);
+                        }
+                        li
+                        {
+                                display: inline;
+                                padding: 0px 10px 0px 10px;
+                        }
+                        a
+                        {
                                 color: white;
-                        }*/
+                        }
                 </style>
         </head>
                 <title>Glory to you...</title>
         </head>
         <body>
-                <h1>head1</h1>
+                <header>
+                        <img src="image_service/other_images/portrait.png" alt="Portrait" style="width:200px;height:188px;">
+                        <h1>head1</h1>
+                        <ul>
+                                <li><a href="#">Item 1</a></li>
+                                <li><a href="#">Item 2</a></li>
+                                <li><a href="#">Item 3</a></li>
+                        </ul>
+                </header>
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
                 <script src="scripts/main.js"></script>
 

@@ -1,7 +1,7 @@
-
 // Array to be populated with finished Image objects
 var slideshowImages = [];
 
+// Clicked action for button
 $(document).ready(function() {
     $("button").on("click", function()
     {
@@ -10,42 +10,22 @@ $(document).ready(function() {
     });
 });
 
-// Try loading images from image service
-try
+const imageLoadPromise = httpGet("http://localhost:8001/");
+imageLoadPromise.then(function(result)
 {
-    // Raw json data from image service
-    const imageData = httpGet("http://localhost:8001/");
-
-    // Array of images in Base64 
-    const allImages = JSON.parse(imageData);
-
-    // Convert each file under 'album_images' from Base64 into an image object. Push finished objects onto slideshowImages[].
-    var albumImages = allImages["album_images"]
-    Object.keys(albumImages).forEach(function(key)
-    {
-        let src = "data:image/jpeg;base64,"
-        src += albumImages[key];
-        let image = new Image();
-        image.src = src;
-        slideshowImages.unshift(image);
-    });
-}
-catch (error)
+    console.log("Images loaded successfully");
+    loadImages(result);
+}).catch(function(error)
 {
-    // If image service cannot be reached, push error message into slideshowImages[] instead
-    let errorImage = new Image();
-    errorImage.src = "image_service/other_images/image_load_error.png";
-    
-    slideshowImages.unshift(errorImage);
-    console.log("catch activated: " + error);
-}
+    console.log("Images failed to load with error: " + error);
+});
 
 // Tracks index of currently-displayed image
 var currentImageIndex = 0;
 
 // Edit header element using js
 var heading = document.querySelector('h1');
-heading.textContent = "Glory to you!";
+heading.textContent = "Brad McCausland";
 
 // Create canvas element
 var canvas = document.createElement('canvas');
@@ -59,8 +39,33 @@ canvas.onclick = function()
     drawNextImage();
 }
 
-window.onload = function()
+function loadImages(imageData)
 {
+    try
+    {
+        // Array of images in Base64 
+        const allImages = JSON.parse(imageData);
+
+        // Convert each file under 'album_images' from Base64 into an image object. Push finished objects onto slideshowImages[].
+        var albumImages = allImages["album_images"]
+        Object.keys(albumImages).forEach(function(key)
+        {
+            let src = "data:image/jpeg;base64,"
+            src += albumImages[key];
+            let image = new Image();
+            image.src = src;
+            slideshowImages.unshift(image);
+        });
+    }
+    catch (error)
+    {
+        // If image service cannot be reached, push error message into slideshowImages[] instead
+        let errorImage = new Image();
+        errorImage.src = "image_service/other_images/image_load_error.png";
+        
+        slideshowImages.unshift(errorImage);
+        console.log("catch activated: " + error);
+    }
     drawNextImage();
 }
 
@@ -74,9 +79,20 @@ function drawNextImage()
 
 function httpGet(url)
 {
-    var xmlHttp = new XMLHttpRequest();
-    //TODO: Remove syncronous call on the main thread
-    xmlHttp.open( "GET", url, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
+    return new Promise (function(resolve, reject)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", url, true); // false for synchronous request
+        xmlHttp.send(null);
+
+        xmlHttp.onreadystatechange = function()
+        {
+            if (xmlHttp.readyState === 4)
+            {
+                resolve(xmlHttp.responseText);
+            }
+        }
+
+        //setTimeout(reject(Error("Timeout after 3 seconds")), 3000);
+    })
 }
