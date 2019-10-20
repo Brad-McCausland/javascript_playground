@@ -66,7 +66,7 @@ function loadImages(imageData)
         slideshowImages.unshift(errorImage);
         console.log("catch activated: " + error);
     }
-    drawNextImage();
+    setTimeout(function(){ drawNextImage(); }, 0); // TODO: Why does this need to be on a separate thread?
 }
 
 function drawNextImage()
