@@ -5,7 +5,7 @@ const cors = require('cors');
 const PORT_NUMBER = 8001;
 const ALL_IMAGE_DIRECTORIES = ["album_images", "other_images"]
 
-// Optional cmd line arguments for simulating network interruptions
+// Optional cmd line arguments for simulating network delay/interruption
 const DELAY_DELIVERY = process.argv[2] == "delay" ? true : false;
 const DO_NOT_DELIVER = process.argv[2] == "dnd"   ? true : false;
 

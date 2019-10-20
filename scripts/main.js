@@ -1,25 +1,6 @@
 // Array to be populated with finished Image objects
 var slideshowImages = [];
 
-// Clicked action for button
-$(document).ready(function() {
-    $("button").on("click", function()
-    {
-        console.log("click");
-        alert("clicked!");
-    });
-});
-
-const imageLoadPromise = httpGet("http://localhost:8001/");
-imageLoadPromise.then(function(result)
-{
-    console.log("Images loaded successfully");
-    loadImages(result);
-}).catch(function(error)
-{
-    console.log("Images failed to load with error: " + error);
-});
-
 // Tracks index of currently-displayed image
 var currentImageIndex = 0;
 
@@ -34,11 +15,37 @@ canvas.height = 400;
 canvas.display = "inline-block"
 document.body.appendChild(canvas);
 
+// Click action cycles through images
 canvas.onclick = function()
 {
-    drawNextImage();
+    if (slideshowImages.length)
+    {
+        drawNextImage();
+    }
 }
 
+// Click action for button using jquery
+$(document).ready(function() {
+    $("button").on("click", function()
+    {
+        console.log("click");
+        alert("clicked!");
+    });
+});
+
+// Attempt to load images from image service
+const imageLoadPromise = httpGet("http://localhost:8001/");
+imageLoadPromise.then(function(result)
+{
+    console.log("Images loaded successfully");
+    loadImages(result);
+}).catch(function(error)
+{
+    console.log("Images failed to load with error: " + error);
+    addErrorImage()
+});
+
+// Takes the result of calling image service, unpacks the data into images, and loads them into the slideshow array
 function loadImages(imageData)
 {
     try
@@ -60,23 +67,35 @@ function loadImages(imageData)
     catch (error)
     {
         // If image service cannot be reached, push error message into slideshowImages[] instead
-        let errorImage = new Image();
-        errorImage.src = "image_service/other_images/image_load_error.png";
-        
-        slideshowImages.unshift(errorImage);
+        addErrorImage();
         console.log("catch activated: " + error);
     }
     setTimeout(function(){ drawNextImage(); }, 0); // TODO: Why does this need to be on a separate thread?
 }
 
-function drawNextImage()
+// Loads error image from local storage, pushes it into the slideshow, and displays it
+function addErrorImage()
 {
-    var context = canvas.getContext('2d');
-    currentImageIndex = (currentImageIndex + 1) % slideshowImages.length
-    let newImage = slideshowImages[currentImageIndex];
-    context.drawImage(newImage, 0, 0, 400, 400);
+    let errorImage = new Image();
+    errorImage.src = "image_service/other_images/image_load_error.png";
+    slideshowImages.unshift(errorImage);
+    setTimeout(function(){ drawNextImage(); }, 10); //TODO: Better yet: why does this draw only work with a delay?
 }
 
+// Advance current image index and use it to display the next image
+function drawNextImage()
+{
+    // do nothing if images not loaded
+    if (slideshowImages.length)
+    {
+        var context = canvas.getContext('2d');
+        currentImageIndex = (currentImageIndex + 1) % slideshowImages.length
+        let newImage = slideshowImages[currentImageIndex];
+        context.drawImage(newImage, 0, 0, 400, 400);
+    }
+}
+
+// Attempts to reach the given url. Returns a promise that resolves with the response, and rejects after a three second timeout
 function httpGet(url)
 {
     return new Promise (function(resolve, reject)
@@ -93,6 +112,7 @@ function httpGet(url)
             }
         }
 
-        //setTimeout(reject(Error("Timeout after 3 seconds")), 3000);
+        // Time out after 3 seconds
+        setTimeout(function(){ reject(Error("Timeout after 3 seconds")) }, 3000);
     })
 }
