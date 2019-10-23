@@ -4,6 +4,8 @@ var slideshowImages = [];
 // Tracks index of currently-displayed image
 var currentImageIndex = 0;
 
+var intervalID = null;
+
 // Edit header element using js
 var heading = document.querySelector('h1');
 heading.textContent = "Brad McCausland";
@@ -34,8 +36,8 @@ $(document).ready(function() {
 });
 
 // Attempt to load images from image service with three second timeout
-const imageLoadPromise = httpGet("http://localhost:8001/", 3000);
 addLoadingAnimation();
+const imageLoadPromise = httpGet("http://localhost:8001/", 3000);
 imageLoadPromise.then(function(result)
 {
     console.log("Images loaded successfully");
@@ -71,66 +73,68 @@ function loadImages(imageData)
         addErrorImage();
         console.log("catch activated: " + error);
     }
+    
+    // Remove loading animation
+    clearInterval(intervalID);
+
     setTimeout(function(){ drawNextImage(); }, 0); // TODO: Why does this need to be on a separate thread?
 }
 
 // Loads error image from local storage, pushes it into the slideshow, and displays it
 function addErrorImage()
 {
+
     let errorImage = new Image();
     errorImage.src = "image_service/other_images/image_load_error.png";
 
     // Clar slidewhow and push error image
     slideshowImages = [];
     slideshowImages.unshift(errorImage);
+    
+    // Remove loading animation
+    clearInterval(intervalID);
+
     setTimeout(function(){ drawNextImage(); }, 10); //TODO: Better yet: why does this draw only work with a delay?
 }
 
-// Loads loading animation from local storage, pushes it into the slideshow, and displays it
+// Loads loading animation from local storage and displays it in photo view
 function addLoadingAnimation()
 {
-    var canvas = photoView;
-    var context = canvas.getContext("2d");
+    let loadingImage = new Image();
+    loadingImage.src = "image_service/other_images/loading.png";
     
     var loadingAnimation = {
-        'source': null,
+        'source': loadingImage,
         'current': 0,
         'total_frames': 12,
         'width': 256,
         'height': 256
     };
-
-    let loadingImage = new Image();
-    loadingImage.onload = function()
-    {
-        loadingAnimation.source = loadingImage;
-    }
-    loadingImage.src = "image_service/other_images/loading.png";
-
     
-    setInterval((function (c, i)
+    if (!slideshowImages.length)
     {
-        return function ()
-        {
-            if (!slideshowImages.length)
-            {
-                draw_anim(c, 10, 10, i);
-            }
-        };
-    })(context, loadingAnimation), 100);
+        // Center loading image in the loading view
+        let width = (photoView.width - 256)/2
+        let height = (photoView.height - 256)/2
+
+        intervalID = setInterval(animateImageInCanvas, 100, photoView.getContext("2d"), width, height, loadingAnimation);
+    }
 }
 
-/*************************************/
-function draw_anim(context, x, y, iobj) { // context is the canvas 2d context.
+function animateImageInCanvas(context, x, y, iobj) {
     if (iobj.source != null)
     {
-        context.drawImage(iobj.source, iobj.current * iobj.width, 0,
-                          iobj.width, iobj.height,
-                          x, y, iobj.width, iobj.height);
+        context.drawImage(
+            iobj.source,                    // Image object
+            iobj.current * iobj.width, 0,   // Coordinates of top left corner of sub-rectangle (multiply frame count by width to get current frame)
+            iobj.width, iobj.height,        // Width and height of sub-rectangle
+            x, y,                           // Destination in target canvas
+            iobj.width, iobj.height         // Width and height to draw the source at
+        );
+        // Iterate one frame in image
         iobj.current = (iobj.current + 1) % iobj.total_frames;
-        }
+    }
 }
-/*************************************/
 
 // Advance current image index and use it to display the next image
 function drawNextImage()
