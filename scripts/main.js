@@ -1,29 +1,15 @@
-// Array to be populated with finished Image objects
-var slideshowImages = [];
-
-// Tracks index of currently-displayed image
-var currentImageIndex = 0;
-
-var intervalID = null;
-
 // Edit header element using js
 var heading = document.querySelector('h1');
 heading.textContent = "Brad McCausland";
 
 // Create photoView element
-var photoView = document.createElement('canvas');
-photoView.width = 400;
-photoView.height = 400;
-photoView.display = "inline-block"
-document.body.appendChild(photoView);
+var photoView = new PhotoView({"width": 400, "height": 400});
+document.body.appendChild(photoView.canvas);
 
 // Click action cycles through images
-photoView.onclick = function()
+photoView.canvas.onclick = function()
 {
-    if (slideshowImages.length)
-    {
-        drawNextImage();
-    }
+    photoView.drawNextImage();
 }
 
 // Click action for button using jquery
@@ -36,7 +22,7 @@ $(document).ready(function() {
 });
 
 // Attempt to load images from image service with three second timeout
-addLoadingAnimation();
+photoView.addLoadingAnimation();
 const imageLoadPromise = httpGet("http://localhost:8001/", 3000);
 imageLoadPromise.then(function(result)
 {
@@ -45,7 +31,7 @@ imageLoadPromise.then(function(result)
 }).catch(function(error)
 {
     console.log("Images failed to load with error: " + error);
-    addErrorImage()
+    photoView.addErrorImage()
 });
 
 // Takes the result of calling image service, unpacks the data into images, and loads them into the slideshow array
@@ -64,89 +50,17 @@ function loadImages(imageData)
             src += albumImages[key];
             let image = new Image();
             image.src = src;
-            slideshowImages.unshift(image);
+            photoView.addImage(image);
         });
     }
     catch (error)
     {
         // If image service cannot be reached, push error message into slideshowImages[] instead
-        addErrorImage();
+        photoView.addErrorImage();
         console.log("catch activated: " + error);
     }
-    
-    // Remove loading animation
-    clearInterval(intervalID);
 
-    setTimeout(function(){ drawNextImage(); }, 0); // TODO: Why does this need to be on a separate thread?
-}
-
-// Loads error image from local storage, pushes it into the slideshow, and displays it
-function addErrorImage()
-{
-
-    let errorImage = new Image();
-    errorImage.src = "image_service/other_images/image_load_error.png";
-
-    // Clar slidewhow and push error image
-    slideshowImages = [];
-    slideshowImages.unshift(errorImage);
-    
-    // Remove loading animation
-    clearInterval(intervalID);
-
-    setTimeout(function(){ drawNextImage(); }, 10); //TODO: Better yet: why does this draw only work with a delay?
-}
-
-// Loads loading animation from local storage and displays it in photo view
-function addLoadingAnimation()
-{
-    let loadingImage = new Image();
-    loadingImage.src = "image_service/other_images/loading.png";
-    
-    var loadingAnimation = {
-        'source': loadingImage,
-        'current': 0,
-        'total_frames': 12,
-        'width': 256,
-        'height': 256
-    };
-    
-    if (!slideshowImages.length)
-    {
-        // Center loading image in the loading view
-        let width = (photoView.width - 256)/2
-        let height = (photoView.height - 256)/2
-
-        intervalID = setInterval(animateImageInCanvas, 100, photoView.getContext("2d"), width, height, loadingAnimation);
-    }
-}
-
-function animateImageInCanvas(context, x, y, iobj) {
-    if (iobj.source != null)
-    {
-        context.drawImage(
-            iobj.source,                    // Image object
-            iobj.current * iobj.width, 0,   // Coordinates of top left corner of sub-rectangle (multiply frame count by width to get current frame)
-            iobj.width, iobj.height,        // Width and height of sub-rectangle
-            x, y,                           // Destination in target canvas
-            iobj.width, iobj.height         // Width and height to draw the source at
-        );
-        // Iterate one frame in image
-        iobj.current = (iobj.current + 1) % iobj.total_frames;
-    }
-}
-
-// Advance current image index and use it to display the next image
-function drawNextImage()
-{
-    // do nothing if images not loaded
-    if (slideshowImages.length)
-    {
-        var context = photoView.getContext('2d');
-        currentImageIndex = (currentImageIndex + 1) % slideshowImages.length
-        let newImage = slideshowImages[currentImageIndex];
-        context.drawImage(newImage, 0, 0, 400, 400);
-    }
+    setTimeout(function(){ photoView.drawNextImage(); }, 0); // TODO: Why does this need to be on a separate thread?
 }
 
 // Attempts to reach the given url. Returns a promise that resolves with the response, and rejects after a specified number of seconds
