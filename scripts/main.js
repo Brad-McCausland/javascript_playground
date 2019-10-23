@@ -8,15 +8,15 @@ var currentImageIndex = 0;
 var heading = document.querySelector('h1');
 heading.textContent = "Brad McCausland";
 
-// Create canvas element
-var canvas = document.createElement('canvas');
-canvas.width = 400;
-canvas.height = 400;
-canvas.display = "inline-block"
-document.body.appendChild(canvas);
+// Create photoView element
+var photoView = document.createElement('canvas');
+photoView.width = 400;
+photoView.height = 400;
+photoView.display = "inline-block"
+document.body.appendChild(photoView);
 
 // Click action cycles through images
-canvas.onclick = function()
+photoView.onclick = function()
 {
     if (slideshowImages.length)
     {
@@ -33,8 +33,9 @@ $(document).ready(function() {
     });
 });
 
-// Attempt to load images from image service
-const imageLoadPromise = httpGet("http://localhost:8001/");
+// Attempt to load images from image service with three second timeout
+const imageLoadPromise = httpGet("http://localhost:8001/", 3000);
+addLoadingAnimation();
 imageLoadPromise.then(function(result)
 {
     console.log("Images loaded successfully");
@@ -78,9 +79,58 @@ function addErrorImage()
 {
     let errorImage = new Image();
     errorImage.src = "image_service/other_images/image_load_error.png";
+
+    // Clar slidewhow and push error image
+    slideshowImages = [];
     slideshowImages.unshift(errorImage);
     setTimeout(function(){ drawNextImage(); }, 10); //TODO: Better yet: why does this draw only work with a delay?
 }
+
+// Loads loading animation from local storage, pushes it into the slideshow, and displays it
+function addLoadingAnimation()
+{
+    var canvas = photoView;
+    var context = canvas.getContext("2d");
+    
+    var loadingAnimation = {
+        'source': null,
+        'current': 0,
+        'total_frames': 12,
+        'width': 256,
+        'height': 256
+    };
+
+    let loadingImage = new Image();
+    loadingImage.onload = function()
+    {
+        loadingAnimation.source = loadingImage;
+    }
+    loadingImage.src = "image_service/other_images/loading.png";
+
+    
+    setInterval((function (c, i)
+    {
+        return function ()
+        {
+            if (!slideshowImages.length)
+            {
+                draw_anim(c, 10, 10, i);
+            }
+        };
+    })(context, loadingAnimation), 100);
+}
+
+/*************************************/
+function draw_anim(context, x, y, iobj) { // context is the canvas 2d context.
+    if (iobj.source != null)
+    {
+        context.drawImage(iobj.source, iobj.current * iobj.width, 0,
+                          iobj.width, iobj.height,
+                          x, y, iobj.width, iobj.height);
+        iobj.current = (iobj.current + 1) % iobj.total_frames;
+        }
+}
+/*************************************/
 
 // Advance current image index and use it to display the next image
 function drawNextImage()
@@ -88,15 +138,15 @@ function drawNextImage()
     // do nothing if images not loaded
     if (slideshowImages.length)
     {
-        var context = canvas.getContext('2d');
+        var context = photoView.getContext('2d');
         currentImageIndex = (currentImageIndex + 1) % slideshowImages.length
         let newImage = slideshowImages[currentImageIndex];
         context.drawImage(newImage, 0, 0, 400, 400);
     }
 }
 
-// Attempts to reach the given url. Returns a promise that resolves with the response, and rejects after a three second timeout
-function httpGet(url)
+// Attempts to reach the given url. Returns a promise that resolves with the response, and rejects after a specified number of seconds
+function httpGet(url, timeLimit)
 {
     return new Promise (function(resolve, reject)
     {
@@ -113,6 +163,6 @@ function httpGet(url)
         }
 
         // Time out after 3 seconds
-        setTimeout(function(){ reject(Error("Timeout after 3 seconds")) }, 3000);
+        setTimeout(function(){ reject(Error("Timeout after 3 seconds")) }, timeLimit);
     })
 }
