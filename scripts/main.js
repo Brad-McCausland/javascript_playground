@@ -2,14 +2,14 @@
 var heading = document.querySelector('h1');
 heading.textContent = "Brad McCausland";
 
-// Create photoView element
-var photoView = new PhotoView({"width": 400, "height": 400});
-document.body.appendChild(photoView.canvas);
+// Create slideShowView element
+var slideShowView = new SlideShowView({"width": 400, "height": 400});
+document.body.appendChild(slideShowView.canvas);
 
 // Click action cycles through images
-photoView.canvas.onclick = function()
+slideShowView.canvas.onclick = function()
 {
-    photoView.drawNextImage();
+    slideShowView.drawNextImage();
 }
 
 // Click action for button using jquery
@@ -22,20 +22,25 @@ $(document).ready(function() {
 });
 
 // Attempt to load images from image service with three second timeout
-photoView.addLoadingAnimation();
+slideShowView.addLoadingAnimation();
 const imageLoadPromise = httpGet("http://localhost:8001/", 3000);
 imageLoadPromise.then(function(result)
 {
     console.log("Images loaded successfully");
-    loadImages(result);
+    loadImages(result, function(){ setTimeout(function() {slideShowView.drawNextImage();}, 0);});
 }).catch(function(error)
 {
     console.log("Images failed to load with error: " + error);
-    photoView.addErrorImage()
+    slideShowView.addErrorImage(function(){ slideShowView.drawNextImage(); });
 });
 
 // Takes the result of calling image service, unpacks the data into images, and loads them into the slideshow array
 function loadImages(imageData)
+{
+    loadImages(imageData, null);
+}
+
+function loadImages(imageData, callback)
 {
     try
     {
@@ -50,17 +55,20 @@ function loadImages(imageData)
             src += albumImages[key];
             let image = new Image();
             image.src = src;
-            photoView.addImage(image);
+            slideShowView.addImage(image);
         });
     }
     catch (error)
     {
         // If image service cannot be reached, push error message into slideshowImages[] instead
-        photoView.addErrorImage();
+        slideShowView.addErrorImage();
         console.log("catch activated: " + error);
     }
 
-    setTimeout(function(){ photoView.drawNextImage(); }, 0); // TODO: Why does this need to be on a separate thread?
+    if (callback)
+    {
+        callback();
+    }
 }
 
 // Attempts to reach the given url. Returns a promise that resolves with the response, and rejects after a specified number of seconds
