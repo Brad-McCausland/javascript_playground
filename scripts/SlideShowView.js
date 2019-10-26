@@ -6,7 +6,16 @@
  * document body.
  */
 
+var stateEnum =
+{
+    EMPTY: 0,
+    LOADING: 1,
+    COMPLETE: 2,
+    ERROR: 3
+};
+
 class SlideShowView {
+
     constructor(values)
     {
         // Create displayable canvas element
@@ -16,6 +25,8 @@ class SlideShowView {
         this.canvas.width   = values["width"]   || 400;
         this.canvas.height  = values["height"]  || 400;
         this.canvas.display = values["display"] || "inline-block";
+
+        this.state = stateEnum.EMPTY;
 
         // Array of image objects displayed by the SlideShowView
         this.images = [];
@@ -31,8 +42,30 @@ class SlideShowView {
         this.errorImage.src = "image_service/other_images/image_load_error.png";
     }
 
+    isEmpty()
+    {
+        return this.state === stateEnum.EMPTY;
+    }
+
+    isLoading()
+    {
+        return this.state === stateEnum.LOADING;
+    }
+
+    isComplete()
+    {
+        return this.state === stateEnum.COMPLETE;
+    }
+
+    isError()
+    {
+        return this.state === stateEnum.ERROR;
+    }
+
     addImage(image)
     {
+        this.state = stateEnum.COMPLETE;
+
         if (image instanceof Image)
         {
             if (!this.images.length)
@@ -62,6 +95,8 @@ class SlideShowView {
         // Clear slideshow and push error image
         this.clearImages();
         this.addImage(this.errorImage);
+        this.state = stateEnum.ERROR;
+
         if (callback)
         {
             callback();
@@ -90,6 +125,9 @@ class SlideShowView {
     // Loads loading animation from local storage and displays it in photo view
     addLoadingAnimation()
     {
+        this.images = [];
+        this.state = stateEnum.LOADING;
+
         let loadingImage = new Image();
         loadingImage.src = "image_service/other_images/loading.png";
         

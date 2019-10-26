@@ -6,10 +6,19 @@ heading.textContent = "Brad McCausland";
 var slideShowView = new SlideShowView({"width": 400, "height": 400});
 document.body.appendChild(slideShowView.canvas);
 
+loadImages();
+
 // Click action cycles through images
 slideShowView.canvas.onclick = function()
 {
-    slideShowView.drawNextImage();
+    if (slideShowView.isError())
+    {
+        loadImages()
+    }
+    else if (slideShowView.isComplete())
+    {
+        slideShowView.drawNextImage();
+    }
 }
 
 // Click action for button using jquery
@@ -21,26 +30,29 @@ $(document).ready(function() {
     });
 });
 
-// Attempt to load images from image service with three second timeout
-slideShowView.addLoadingAnimation();
-const imageLoadPromise = httpGet("http://localhost:8001/", 3000);
-imageLoadPromise.then(function(result)
+function loadImages()
 {
-    console.log("Images loaded successfully");
-    loadImages(result, function(){ setTimeout(function() {slideShowView.drawNextImage();}, 0);});
-}).catch(function(error)
-{
-    console.log("Images failed to load with error: " + error);
-    slideShowView.addErrorImage(function(){ slideShowView.drawNextImage(); });
-});
-
-// Takes the result of calling image service, unpacks the data into images, and loads them into the slideshow array
-function loadImages(imageData)
-{
-    loadImages(imageData, null);
+    // Attempt to load images from image service with three second timeout
+    slideShowView.addLoadingAnimation();
+    const imageLoadPromise = httpGet("http://localhost:8001/", 3000);
+    imageLoadPromise.then(function(result)
+    {
+        console.log("Images loaded successfully");
+        fetchImages(result, function(){ setTimeout(function() {slideShowView.drawNextImage();}, 0);});
+    }).catch(function(error)
+    {
+        console.log("Images failed to load with error: " + error);
+        slideShowView.addErrorImage(function(){ slideShowView.drawNextImage(); });
+    });
 }
 
-function loadImages(imageData, callback)
+// Takes the result of calling image service, unpacks the data into images, and loads them into the slideshow array
+function fetchImages(imageData)
+{
+    fetchImages(imageData, null);
+}
+
+function fetchImages(imageData, callback)
 {
     try
     {
