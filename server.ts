@@ -1,6 +1,6 @@
 //const express = require('express');
-import * as path from "path";
-import * as express from "express";
+import path from "path";
+import express from "express";
 
 const serverPortNum = 8000;
 const htmlFile = path.join(__dirname + '/index.html');

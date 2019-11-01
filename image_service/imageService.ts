@@ -1,6 +1,6 @@
-import * as fs from "fs";
-import * as express from "express";
-import * as cors from "cors";
+import fs from "fs";
+import express from "express";
+import cors from "cors";
 
 const PORT_NUMBER = 8001;
 const ALL_IMAGE_DIRECTORIES = ["album_images", "other_images"]
