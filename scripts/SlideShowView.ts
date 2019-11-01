@@ -45,7 +45,7 @@ export class SlideShowView {
 
         // Error image
         this.errorImage = new Image();
-        this.errorImage.src = "image_service/other_images/image_load_error.png";
+        this.errorImage.src = "services/image_service/other_images/image_load_error.png";
     }
 
     isEmpty()
@@ -129,7 +129,7 @@ export class SlideShowView {
         this.state = stateEnum.LOADING;
 
         let loadingImage = new Image();
-        loadingImage.src = "image_service/other_images/loading.png";
+        loadingImage.src = "services/image_service/other_images/loading.png";
 
         var loadingAnimation = new AnimatableImage(loadingImage, 0, 12, 256, 256);
 
