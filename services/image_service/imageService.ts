@@ -38,7 +38,7 @@ app.use(express.static(__dirname));
 app.use(cors());
 app.get('/', function(req: any, res: any)
 {
-    // If debug, delay for a random amount of time (orto simulate 
+    // If debug, delay for a random amount of time (0 - 5 seconds)
     if (DELAY_DELIVERY)
     {
         delay = Math.random() * 5000;

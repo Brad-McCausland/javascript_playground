@@ -1,4 +1,5 @@
-import * as SlideShowView from "./SlideShowView.js";
+//import * as SlideShowView from "./SlideShowView.js";
+import { SlideShowView } from './SlideShowView.js';
 
 // Edit header element using js
 var heading = document.querySelector('h1');
@@ -8,13 +9,13 @@ if (heading)
 }
 
 // Create slideShowView element
-var slideShowView = new SlideShowView.SlideShowView({"width": 400, "height": 400});
+var slideShowView = new SlideShowView({"width": 400, "height": 400});
 document.body.appendChild(slideShowView.canvas);
 
 loadImages();
 
 // Click action cycles through images
-slideShowView.canvas.onclick = function()
+slideShowView.canvas.onclick = function(): void
 {
     if (slideShowView.isError())
     {
@@ -37,7 +38,7 @@ $(document).ready(function() {
 });
 */
 
-function loadImages()
+function loadImages(): void
 {
     // Attempt to load images from image service with three second timeout
     slideShowView.addLoadingAnimation();
@@ -46,7 +47,7 @@ function loadImages()
     {
         if (typeof result === "string")
         {console.log("Images loaded successfully");
-        fetchImages(result, function(){ setTimeout(function() {slideShowView.drawNextImage();}, 0);});
+        decodeImages(result, slideShowView, function(){ setTimeout(function() {slideShowView.drawNextImage();}, 0);});
     }
     }).catch(function(error: string)
     {
@@ -56,7 +57,7 @@ function loadImages()
 }
 
 // Takes the result of calling image service, unpacks the data into images, and loads them into the slideshow array
-function fetchImages(imageData: string, callback?: () => void)
+function decodeImages(imageData: string, slideShow: SlideShowView, callback?: () => void): void
 {
     try
     {
@@ -71,7 +72,7 @@ function fetchImages(imageData: string, callback?: () => void)
             src += albumImages[key];
             let image = new Image();
             image.src = src;
-            slideShowView.addImage(image);
+            slideShow.addImage(image);
         });
     }
     catch (error)
@@ -88,7 +89,7 @@ function fetchImages(imageData: string, callback?: () => void)
 }
 
 // Attempts to reach the given url. Returns a promise that resolves with the response, and rejects after a specified number of seconds
-function httpGet(url: string, timeLimit: number)
+function httpGet(url: string, timeLimit: number): Promise<string>
 {
     return new Promise (function(resolve, reject)
     {

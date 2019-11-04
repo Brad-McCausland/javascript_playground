@@ -48,27 +48,27 @@ export class SlideShowView {
         this.errorImage.src = "services/image_service/other_images/image_load_error.png";
     }
 
-    isEmpty()
+    isEmpty(): boolean
     {
         return this.state === stateEnum.EMPTY;
     }
 
-    isLoading()
+    isLoading(): boolean
     {
         return this.state === stateEnum.LOADING;
     }
 
-    isComplete()
+    isComplete(): boolean
     {
         return this.state === stateEnum.COMPLETE;
     }
 
-    isError()
+    isError(): boolean
     {
         return this.state === stateEnum.ERROR;
     }
 
-    addImage(image: HTMLImageElement)
+    addImage(image: HTMLImageElement): void
     {
         this.state = stateEnum.COMPLETE;
 
@@ -84,7 +84,7 @@ export class SlideShowView {
     }
 
     // Loads error image from local storage, pushes it into the slideshow, and displays it
-    addErrorImage(callback?: () => void)
+    addErrorImage(callback?: () => void): void
     {
         // Remove loading animation
         if (this.intervalID)
@@ -103,13 +103,13 @@ export class SlideShowView {
         }
     }
 
-    clearImages()
+    clearImages(): void
     {
         this.images = [];
     }
 
     // Advance current image index and use it to display the next image
-    drawNextImage()
+    drawNextImage(): void
     {
         var context = this.canvas.getContext('2d');
         // do nothing if images not loaded
@@ -123,7 +123,7 @@ export class SlideShowView {
     }
 
     // Loads loading animation from local storage and displays it in photo view
-    addLoadingAnimation()
+    addLoadingAnimation(): void
     {
         this.images = [];
         this.state = stateEnum.LOADING;
@@ -143,7 +143,7 @@ export class SlideShowView {
         }
     }
 
-    animateImageInCanvas(context: CanvasRenderingContext2D, x: number, y: number, iobj: AnimatableImage)
+    animateImageInCanvas(context: CanvasRenderingContext2D, x: number, y: number, iobj: AnimatableImage): void
     {
         if (iobj.source != null)
         {
